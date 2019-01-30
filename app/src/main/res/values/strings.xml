@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PhoneVal</string>
+    <string name="no_permission_granted">No Permission Granted</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="permission_success">Permission Granted, Now you can access contacts.</string>
+    <string name="permission_failure">Permission Denied, You cannot access contacts.</string>
+</resources>
