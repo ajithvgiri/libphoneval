@@ -9,15 +9,6 @@ import android.support.design.widget.Snackbar
 import android.util.Log.*
 import android.view.View
 
-
-enum class LogType {
-    DEBUG,
-    INFO,
-    ERROR,
-    WARNING,
-    VERBOSE
-}
-
 object AppUtils {
 
     fun printLog(TAG: String, message: String? = "No log message found", type: LogType) {
@@ -30,8 +21,16 @@ object AppUtils {
         }
     }
 
-    fun snackMessage(view: View,message: String){
+    fun snackMessage(view: View, message: String) {
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
     }
 
+}
+
+enum class LogType {
+    DEBUG,
+    INFO,
+    ERROR,
+    WARNING,
+    VERBOSE
 }
