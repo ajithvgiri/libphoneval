@@ -26,6 +26,7 @@ import com.ajithvgiri.libphoneval.Phonenumber.PhoneNumber.CountryCodeSource;
 import com.ajithvgiri.libphoneval.internal.MatcherApi;
 import com.ajithvgiri.libphoneval.internal.RegexBasedMatcher;
 import com.ajithvgiri.libphoneval.internal.RegexCache;
+import com.ajithvgiri.libphoneval.model.PhoneModel;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -1215,6 +1216,32 @@ public class PhoneNumberUtil {
     return formattedNumbers;
   }
 
+  //using phone model class
+  public HashSet<PhoneModel> formatModel(HashSet<PhoneModel> number, PhoneNumberFormat numberFormat) {
+    HashSet<PhoneModel> formattedNumbers = new HashSet<>();
+
+    for (PhoneModel phoneModel:number){
+      if (phoneModel.getPhoneNumber().getNationalNumber() == 0 && phoneModel.getPhoneNumber().hasRawInput()){
+        // Unparseable numbers that kept their raw input just use that.
+        // This is the only case where a number can be formatted as E164 without a
+        // leading '+' symbol (but the original number wasn't parseable anyway).
+        // TODO: Consider removing the 'if' above so that unparseable
+        // strings without raw input format to the empty string instead of "+00".
+        String rawInput = phoneModel.getPhoneNumber().getRawInput();
+        if (rawInput.length() > 0) {
+          phoneModel.setPhone(rawInput);
+          formattedNumbers.add(phoneModel);
+        }
+      }else{
+        StringBuilder formattedNumber = new StringBuilder(20);
+        format(phoneModel.getPhoneNumber(), numberFormat, formattedNumber);
+        phoneModel.setPhone(formattedNumber.toString());
+        formattedNumbers.add(phoneModel);
+      }
+    }
+    return formattedNumbers;
+  }
+
   /**
    * Same as {@link #format(PhoneNumber, PhoneNumberFormat)}, but accepts a mutable StringBuilder as
    * a parameter to decrease object creation when invoked many times.
@@ -2293,6 +2320,25 @@ public class PhoneNumberUtil {
     return validNumbers;
   }
 
+  //using phone model class
+  public HashSet<PhoneModel> checkValidNumbersModel(HashSet<PhoneModel> phoneNumbers,String countryCode){
+    HashSet<PhoneModel> validNumbers = new HashSet<>();
+    for (PhoneModel phoneModel:phoneNumbers){
+      try {
+        PhoneNumber parsedNumber = parse(phoneModel.getPhone(), countryCode);
+        String regionCode = getRegionCodeForNumber(parsedNumber);
+        if (isValidNumberForRegion(parsedNumber, regionCode)) {
+          validNumbers.add(phoneModel);
+        }
+      } catch (NumberParseException e) {
+        e.printStackTrace();
+      }catch (Exception e){
+        e.printStackTrace();
+      }
+    }
+    return validNumbers;
+  }
+
   /**
    * Tests whether a phone number is valid for a certain region. Note this doesn't verify the number
    * is actually in use, which is impossible to tell by just looking at a number itself. If the
@@ -3075,6 +3121,39 @@ public class PhoneNumberUtil {
           }
       }
       return parsedNumbers;
+  }
+
+  //using phone model class
+  public HashSet<PhoneModel> parseUsingModel(HashSet<PhoneModel> numbers, String defaultRegion){
+    HashSet<PhoneModel> parsedNumbers = new HashSet<>();
+    for (PhoneModel numberToParse:numbers){
+      try {
+        PhoneNumber phoneNumber = new PhoneNumber();
+        parse(numberToParse.getPhone(), defaultRegion, phoneNumber);
+        numberToParse.setPhoneNumber(phoneNumber);
+        parsedNumbers.add(numberToParse);
+      } catch (NumberParseException e) {
+        e.printStackTrace();
+      }
+    }
+    return parsedNumbers;
+  }
+
+
+  //using phone model class
+  public ArrayList<PhoneModel> parseUsingModelArrayList(HashSet<PhoneModel> numbers, String defaultRegion){
+    ArrayList<PhoneModel> parsedNumbers = new ArrayList<>();
+    for (PhoneModel numberToParse:numbers){
+      try {
+        PhoneNumber phoneNumber = new PhoneNumber();
+        parse(numberToParse.getPhone(), defaultRegion, phoneNumber);
+        numberToParse.setPhoneNumber(phoneNumber);
+        parsedNumbers.add(numberToParse);
+      } catch (NumberParseException e) {
+        e.printStackTrace();
+      }
+    }
+    return parsedNumbers;
   }
 
   /**
