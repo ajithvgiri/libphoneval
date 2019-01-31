@@ -1193,6 +1193,28 @@ public class PhoneNumberUtil {
     return formattedNumber.toString();
   }
 
+  public HashSet<String> format(HashSet<PhoneNumber> number, PhoneNumberFormat numberFormat) {
+    HashSet<String> formattedNumbers = new HashSet<>();
+    for (PhoneNumber phoneNumber:number){
+      if (phoneNumber.getNationalNumber() == 0 && phoneNumber.hasRawInput()){
+        // Unparseable numbers that kept their raw input just use that.
+        // This is the only case where a number can be formatted as E164 without a
+        // leading '+' symbol (but the original number wasn't parseable anyway).
+        // TODO: Consider removing the 'if' above so that unparseable
+        // strings without raw input format to the empty string instead of "+00".
+        String rawInput = phoneNumber.getRawInput();
+        if (rawInput.length() > 0) {
+          formattedNumbers.add(rawInput);
+        }
+      }else{
+        StringBuilder formattedNumber = new StringBuilder(20);
+        format(phoneNumber, numberFormat, formattedNumber);
+        formattedNumbers.add(formattedNumber.toString());
+      }
+    }
+    return formattedNumbers;
+  }
+
   /**
    * Same as {@link #format(PhoneNumber, PhoneNumberFormat)}, but accepts a mutable StringBuilder as
    * a parameter to decrease object creation when invoked many times.
@@ -2254,21 +2276,20 @@ public class PhoneNumberUtil {
   }
 
   public HashSet<String> checkValidNumbers(HashSet<String> phoneNumbers,String countryCode){
-    HashSet<PhoneNumber> parsedContactList = new HashSet<>();
     HashSet<String> validNumbers = new HashSet<>();
-    for (String phoneNo:phoneNumbers){
-      try {
-        PhoneNumber parsedNumber = parse(phoneNo, countryCode);
-        String regionCode = getRegionCodeForNumber(parsedNumber);
-        if (isValidNumberForRegion(parsedNumber, regionCode)) {
-          validNumbers.add(phoneNo);
-        }
-      } catch (NumberParseException e) {
-        e.printStackTrace();
-      }catch (Exception e){
-        e.printStackTrace();
+      for (String phoneNo:phoneNumbers){
+          try {
+              PhoneNumber parsedNumber = parse(phoneNo, countryCode);
+              String regionCode = getRegionCodeForNumber(parsedNumber);
+              if (isValidNumberForRegion(parsedNumber, regionCode)) {
+                  validNumbers.add(phoneNo);
+              }
+          } catch (NumberParseException e) {
+              e.printStackTrace();
+          }catch (Exception e){
+              e.printStackTrace();
+          }
       }
-    }
     return validNumbers;
   }
 
@@ -3040,6 +3061,20 @@ public class PhoneNumberUtil {
     PhoneNumber phoneNumber = new PhoneNumber();
     parse(numberToParse, defaultRegion, phoneNumber);
     return phoneNumber;
+  }
+
+  public HashSet<PhoneNumber> parse(HashSet<String> numbers,String defaultRegion){
+      HashSet<PhoneNumber> parsedNumbers = new HashSet<>();
+      for (String numberToParse:numbers){
+        try {
+          PhoneNumber phoneNumber = new PhoneNumber();
+          parse(numberToParse, defaultRegion, phoneNumber);
+              parsedNumbers.add(phoneNumber);
+          } catch (NumberParseException e) {
+              e.printStackTrace();
+          }
+      }
+      return parsedNumbers;
   }
 
   /**

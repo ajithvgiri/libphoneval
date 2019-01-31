@@ -34,6 +34,10 @@ class MainActivity : AppCompatActivity() {
     private var start = ""
     private var end = ""
 
+    override fun onStart() {
+        super.onStart()
+        start = Date(System.currentTimeMillis()).toString()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -87,8 +91,6 @@ class MainActivity : AppCompatActivity() {
     private fun getContacts() {
         AppUtils.printLog(TAG, "Contact Fetching Start ", LogType.INFO)
 
-        start = Date(System.currentTimeMillis()).toString()
-
         val countryCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             resources.configuration.locales[0].country
         } else {
@@ -126,7 +128,15 @@ class MainActivity : AppCompatActivity() {
                 AppUtils.printLog(TAG, "Total Contacts Count ${contactList.size}", LogType.INFO)
 
 
-                validatedNumbers = phoneNumberUtil.checkValidNumbers(contactList,countryCode)
+
+                val parseNumber = phoneNumberUtil.parse(contactList,countryCode)
+                val formatted = phoneNumberUtil.format(parseNumber,PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
+
+                validatedNumbers =phoneNumberUtil.checkValidNumbers(formatted,countryCode)
+
+                validatedNumbers.forEach {
+                    println(it)
+                }
 
                 AppUtils.printLog(TAG, "Total Filtered Contacts Count ${validatedNumbers.size}", LogType.INFO)
             } else {
