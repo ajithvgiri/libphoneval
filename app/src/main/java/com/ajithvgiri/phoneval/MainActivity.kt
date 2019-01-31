@@ -8,9 +8,7 @@ import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.ajithvgiri.libphoneval.NumberParseException
 import com.ajithvgiri.libphoneval.PhoneNumberUtil
-import com.ajithvgiri.libphoneval.Phonenumber
 import com.ajithvgiri.phoneval.utils.AppUtils
 import com.ajithvgiri.phoneval.utils.CheckPermissionResult
 import com.ajithvgiri.phoneval.utils.LogType
@@ -31,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var view: View
     private lateinit var phoneNumberUtil: PhoneNumberUtil
-    private val parsedContactList = HashSet<Phonenumber.PhoneNumber>()
+    private val contactList = HashSet<String>()
     private var validatedNumbers: HashSet<String> = HashSet()
     private var start = ""
     private var end = ""
@@ -91,6 +89,12 @@ class MainActivity : AppCompatActivity() {
 
         start = Date(System.currentTimeMillis()).toString()
 
+        val countryCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            resources.configuration.locales[0].country
+        } else {
+            Locale.getDefault().country
+        }
+
         doAsync{
             val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
             val selection = ContactsContract.CommonDataKinds.Phone.HAS_PHONE_NUMBER + "=1"
@@ -108,28 +112,21 @@ class MainActivity : AppCompatActivity() {
             //val qkopyContactList = ArrayList<QkopyContacts>()
 
             if (cur != null && cur.count > 0 && cur.moveToFirst()) {
-                parsedContactList.clear()
+                contactList.clear()
                 do {
                     var phoneNo = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                     if (!phoneNo.isNullOrEmpty()) {
-                        try {
-                            val parsedNumber = phoneNumberUtil.parse(phoneNo, "IN")
-                            parsedContactList.add(parsedNumber)
-                        } catch (numberParseException: NumberParseException) {
-                            AppUtils.printLog(TAG, numberParseException.message, LogType.ERROR)
-                        } catch (e: Exception) {
-                            AppUtils.printLog(TAG, e.message, LogType.ERROR)
-                        }
+                        contactList.add(phoneNo)
                     }
                 } while (cur.moveToNext())
 
                 cur.close()
-
                 end = Date(System.currentTimeMillis()).toString()
                 AppUtils.printLog(TAG, "Contact Fetching Finish ", LogType.INFO)
-                AppUtils.printLog(TAG, "Total Contacts Count ${parsedContactList.size}", LogType.INFO)
+                AppUtils.printLog(TAG, "Total Contacts Count ${contactList.size}", LogType.INFO)
 
-                validatedNumbers = phoneNumberUtil.validNumbers(parsedContactList)
+
+                validatedNumbers = phoneNumberUtil.checkValidNumbers(contactList,countryCode)
 
                 AppUtils.printLog(TAG, "Total Filtered Contacts Count ${validatedNumbers.size}", LogType.INFO)
             } else {
@@ -137,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             uiThread {
-                textTotalContacts.text = "${parsedContactList.size}"
+                textTotalContacts.text = "${contactList.size}"
                 textViewStartEndTime.text = "$start ----- $end"
                 textViewValidContacts.text = "${validatedNumbers.size}"
             }

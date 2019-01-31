@@ -2253,12 +2253,20 @@ public class PhoneNumberUtil {
     return isValidNumberForRegion(number, regionCode);
   }
 
-  public HashSet<String> validNumbers(HashSet<PhoneNumber> phoneNumbers) {
+  public HashSet<String> checkValidNumbers(HashSet<String> phoneNumbers,String countryCode){
+    HashSet<PhoneNumber> parsedContactList = new HashSet<>();
     HashSet<String> validNumbers = new HashSet<>();
-    for (PhoneNumber number : phoneNumbers) {
-      String regionCode = getRegionCodeForNumber(number);
-      if (isValidNumberForRegion(number, regionCode)) {
-        validNumbers.add(number.toString());
+    for (String phoneNo:phoneNumbers){
+      try {
+        PhoneNumber parsedNumber = parse(phoneNo, countryCode);
+        String regionCode = getRegionCodeForNumber(parsedNumber);
+        if (isValidNumberForRegion(parsedNumber, regionCode)) {
+          validNumbers.add(phoneNo);
+        }
+      } catch (NumberParseException e) {
+        e.printStackTrace();
+      }catch (Exception e){
+        e.printStackTrace();
       }
     }
     return validNumbers;
