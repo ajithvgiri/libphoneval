@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity() {
                     AppUtils.snackMessage(view, getString(R.string.permission_failure))
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
+                            greetings()
                             return
                         }
                     }
@@ -96,6 +97,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    fun greetings(){
+        print("Hello, world !")
+    }
+
+    /**
+     * Ajith v Giri
+     * https://ajithvgiri.com
+     */
 
 
     private fun getContacts() {
@@ -118,7 +129,8 @@ class MainActivity : AppCompatActivity() {
             val projection = arrayOf(
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME_PRIMARY,
-                ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID
+                ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID,
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID
             )
             val selection = ContactsContract.CommonDataKinds.Phone.HAS_PHONE_NUMBER + "= 1"
             val sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
@@ -140,10 +152,11 @@ class MainActivity : AppCompatActivity() {
             if (cur != null && cur.count > 0 && cur.moveToFirst()) {
                 do {
                     val rawId = cur.getLong(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID))
+                    val contactId = cur.getLong(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
                     val name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
                     val phoneNo = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                     if (!phoneNo.isNullOrEmpty()) {
-                        val phoneModel = PhoneModel(rawId,name,phoneNo,null)
+                        val phoneModel = PhoneModel(rawId,contactId,name,phoneNo,null)
                         totalContactsArrayList.add(phoneModel)
                         totalContactsHashList.add(phoneModel)
 //                        try {

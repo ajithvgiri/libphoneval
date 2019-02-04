@@ -3,7 +3,8 @@ package com.ajithvgiri.libphoneval.model;
 import com.ajithvgiri.libphoneval.Phonenumber;
 
 public class PhoneModel {
-    long id;
+    long rawId;
+    long contact_id;
     String name;
     String phone;
     Phonenumber.PhoneNumber phoneNumber;
@@ -12,19 +13,28 @@ public class PhoneModel {
 
     }
 
-    public PhoneModel(long id, String name, String phone, Phonenumber.PhoneNumber phoneNumber) {
-        this.id = id;
+    public PhoneModel(long rawId, long contact_id, String name, String phone, Phonenumber.PhoneNumber phoneNumber) {
+        this.rawId = rawId;
+        this.contact_id = contact_id;
         this.name = name;
         this.phone = phone;
         this.phoneNumber = phoneNumber;
     }
 
-    public long getId() {
-        return id;
+    public long getRawId() {
+        return rawId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setRawId(long rawId) {
+        this.rawId = rawId;
+    }
+
+    public long getContact_id() {
+        return contact_id;
+    }
+
+    public void setContact_id(long contact_id) {
+        this.contact_id = contact_id;
     }
 
     public String getName() {
