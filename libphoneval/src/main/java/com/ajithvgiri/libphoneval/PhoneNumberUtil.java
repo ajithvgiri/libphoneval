@@ -18,6 +18,7 @@
 package com.ajithvgiri.libphoneval;
 
 import android.content.Context;
+import android.util.Log;
 import com.ajithvgiri.libphoneval.Phonemetadata.NumberFormat;
 import com.ajithvgiri.libphoneval.Phonemetadata.PhoneMetadata;
 import com.ajithvgiri.libphoneval.Phonemetadata.PhoneNumberDesc;
@@ -2327,9 +2328,12 @@ public class PhoneNumberUtil {
       try {
         PhoneNumber parsedNumber = parse(phoneModel.getPhone(), countryCode);
         String regionCode = getRegionCodeForNumber(parsedNumber);
-        if (isValidNumberForRegion(parsedNumber, regionCode)) {
-          validNumbers.add(phoneModel);
+        if (getNumberType(parsedNumber) == PhoneNumberType.MOBILE){
+          if (isValidNumberForRegion(parsedNumber, regionCode)) {
+            validNumbers.add(phoneModel);
+          }
         }
+
       } catch (NumberParseException e) {
         e.printStackTrace();
       }catch (Exception e){
