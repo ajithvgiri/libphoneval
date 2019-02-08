@@ -3128,8 +3128,9 @@ public class PhoneNumberUtil {
     HashSet<PhoneModel> parsedNumbers = new HashSet<>();
     for (PhoneModel numberToParse:numbers){
       try {
+        String phone= numberToParse.getPhone().replaceAll(" ", "");
         PhoneNumber phoneNumber = new PhoneNumber();
-        parse(numberToParse.getPhone(), defaultRegion, phoneNumber);
+        parse(phone, defaultRegion, phoneNumber);
         numberToParse.setPhoneNumber(phoneNumber);
         parsedNumbers.add(numberToParse);
       } catch (NumberParseException e) {
