@@ -2326,17 +2326,26 @@ public class PhoneNumberUtil {
     HashSet<PhoneModel> validNumbers = new HashSet<>();
     for (PhoneModel phoneModel:phoneNumbers){
       try {
-        PhoneNumber parsedNumber = parse(phoneModel.getPhone(), countryCode);
+        PhoneNumber parsedNumber = phoneModel.getPhoneNumber();
         String regionCode = getRegionCodeForNumber(parsedNumber);
-        if (getNumberType(parsedNumber) == PhoneNumberType.MOBILE){
+        if (getNumberType(parsedNumber) == PhoneNumberType.MOBILE ||
+                getNumberType(parsedNumber) == PhoneNumberType.FIXED_LINE_OR_MOBILE ||
+                getNumberType(parsedNumber) == PhoneNumberType.PERSONAL_NUMBER
+        ){
           if (isValidNumberForRegion(parsedNumber, regionCode)) {
             validNumbers.add(phoneModel);
           }
+        }else{
+            Log.d("NumberType","------------------------");
+            Log.d("NumberType",phoneModel.getName());
+            Log.d("NumberType",phoneModel.getPhone());
+            Log.d("NumberType","raw "+phoneModel.getPhoneNumber().getRawInput());
+            Log.d("NumberType",""+getNumberType(parsedNumber));
+            Log.d("NumberType","------------------------");
+
         }
 
-      } catch (NumberParseException e) {
-        e.printStackTrace();
-      }catch (Exception e){
+      } catch (Exception e){
         e.printStackTrace();
       }
     }
@@ -3132,9 +3141,11 @@ public class PhoneNumberUtil {
     HashSet<PhoneModel> parsedNumbers = new HashSet<>();
     for (PhoneModel numberToParse:numbers){
       try {
-        String phone= numberToParse.getPhone().replaceAll(" ", "");
         PhoneNumber phoneNumber = new PhoneNumber();
-        parse(phone, defaultRegion, phoneNumber);
+
+        parse(numberToParse.getPhone(), defaultRegion, phoneNumber);
+        numberToParse.setPhone(numberToParse.getPhone());
+
         numberToParse.setPhoneNumber(phoneNumber);
         parsedNumbers.add(numberToParse);
       } catch (NumberParseException e) {

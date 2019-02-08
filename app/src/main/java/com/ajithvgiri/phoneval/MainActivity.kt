@@ -112,17 +112,17 @@ class MainActivity : AppCompatActivity() {
     private fun getContacts() {
         AppUtils.printLog(TAG, "Contact Fetching Start ", LogType.INFO)
 
-        val countryCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            resources.configuration.locales[0].country
-        } else {
-            Locale.getDefault().country
-        }
-
-        val tm = this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val countryCodeValue = tm.networkCountryIso
-
-        println("Country code $countryCode")
-        println("Country code $countryCodeValue")
+//        val countryCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            resources.configuration.locales[0].country
+//        } else {
+//            Locale.getDefault().country
+//        }
+//
+//        val tm = this.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+//        val countryCodeValue = tm.networkCountryIso
+//
+//        println("Country code $countryCode")
+//        println("Country code $countryCodeValue")
 
         doAsync {
             Log.d(TAG, "ContactSync Start ")
@@ -179,15 +179,16 @@ class MainActivity : AppCompatActivity() {
                 cur.close()
 
 
-                val parseNumber = phoneNumberUtil.parseUsingModel(totalContactsHashList,countryCodeValue.toUpperCase())
+                var parseNumber = phoneNumberUtil.parseUsingModel(totalContactsHashList,"IN".toUpperCase())
+
 
                 val formatted = phoneNumberUtil.formatModel(parseNumber,PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
 
                 formatted.forEach {
-                    println("parseNumber ${it.phone}")
+                    println("formatted ${it.phone}")
                 }
 
-                val validatedNumbers =phoneNumberUtil.checkValidNumbersModel(formatted,countryCodeValue.toUpperCase())
+                val validatedNumbers = phoneNumberUtil.checkValidNumbersModel(formatted,"91".toUpperCase())
 
                 Log.d(TAG,"Total contacts verification in phoneVal Hashset = ${totalContactsHashList.size}")
                 Log.d(TAG,"Total contacts verification in phoneVal Hashset = ${totalContactsHashList.distinctBy { it.phone }.size}")
